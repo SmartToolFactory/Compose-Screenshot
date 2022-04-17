@@ -6,8 +6,6 @@ Screenshot Composables and convert into Bitmap on user action or periodically.
 | ----------|-----------|
 | <img src="./art/screenshot.gif"/> | <img src="./art/periodic_screenshot.gif"/> |
 
-
-
 ## Implementation
 
 ### Single Shot
@@ -42,19 +40,23 @@ ScreenshotBox(screenshotState = screenshotState) {
 }
 ```
 
-Provide a `ScreenshotState` which stores Bitmap 
+Provide a `ScreenshotState` which stores Bitmap
+
 ```
 val screenshotState = rememberScreenshotState()
 ```
 
 and take screenshot by clicking a button or calling `screenshotState.capture()`
 
-Button(onClick = {
-    screenshotState.capture()
-}) {
+```
+Button(
+    onClick = { 
+        screenshotState.capture()
+    }
+) { 
     Text(text = "Take Screenshot")
 }
-
+```
 And get `Bitmap` or `ImageBitmap` as
 
 ```
@@ -68,11 +70,13 @@ screenshotState.imageBitmap?.let {
     )
 }
 ```
-initially `Bitmap` is null because `onGloballyPositioned` might not return correct coordinates
-or sometimes it returns zero width or height, nullable makes sure that you get the latest
-one after calling `screenshotState.capture()`
+
+initially `Bitmap` is null because `onGloballyPositioned` might not return correct coordinates or
+sometimes it returns zero width or height, nullable makes sure that you get the latest one after
+calling `screenshotState.capture()`
 
 ### Periodic Shot
+
 Collect `screenshotState.liveScreenshotFlow` to get periodic screenshots of your composables with
 
 ```
@@ -84,6 +88,7 @@ LaunchedEffect(Unit) {
 ```
 
 ## ScreenshotState
+
 Set a delay after each shot by setting `delayInMillis`
 
 ```
