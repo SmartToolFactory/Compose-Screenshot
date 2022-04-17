@@ -115,7 +115,7 @@ fun ScreenshotSample2() {
 
     val screenshotState = rememberScreenshotState()
 
-    Text("ScreenshotBox on right edge")
+    Text("ScreenshotBox at the right edge")
     Spacer(modifier = Modifier.width(10.dp))
 
     Row(

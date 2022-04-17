@@ -1,10 +1,37 @@
 # Compose ScreenshotBox
 
+[![](https://jitpack.io/v/SmartToolFactory/Compose-Screenshot.svg)](https://jitpack.io/#SmartToolFactory/Compose-Screenshot)
+
 Screenshot Composables and convert into Bitmap on user action or periodically.
 
 | Single Shot | Periodic |
 | ----------|-----------|
 | <img src="./art/screenshot.gif"/> | <img src="./art/periodic_screenshot.gif"/> |
+
+## Gradle Setup
+
+To get a Git project into your build:
+
+* Step 1. Add the JitPack repository to your build file Add it in your root build.gradle at the end
+  of repositories:
+
+```
+allprojects {
+  repositories {
+      ...
+      maven { url 'https://jitpack.io' }
+  }
+}
+```
+
+* Step 2. Add the dependency
+
+```
+	dependencies {
+	        implementation 'com.github.SmartToolFactory:Compose-Screenshot:Tag'
+	}
+```
+
 
 ## Implementation
 
