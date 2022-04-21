@@ -2,7 +2,7 @@
 
 [![](https://jitpack.io/v/SmartToolFactory/Compose-Screenshot.svg)](https://jitpack.io/#SmartToolFactory/Compose-Screenshot)
 
-Screenshot Composables and convert into Bitmap on user action or periodically.
+Screenshot Composables and convert to Bitmap on user action or periodically.
 
 | Single Shot | Periodic |
 | ----------|-----------|
@@ -27,9 +27,9 @@ allprojects {
 * Step 2. Add the dependency
 
 ```
-	dependencies {
-	        implementation 'com.github.SmartToolFactory:Compose-Screenshot:Tag'
-	}
+dependencies {
+    implementation 'com.github.SmartToolFactory:Compose-Screenshot:Tag'
+}
 ```
 
 
