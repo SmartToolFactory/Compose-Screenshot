@@ -39,7 +39,7 @@ dependencies {
 
 Create a `ScreenshotBox` which covers your Composables you want to take screenshot of
 
-```
+```kotlin
 ScreenshotBox(screenshotState = screenshotState) {
     Column(
         modifier = Modifier
@@ -73,9 +73,9 @@ Provide a `ScreenshotState` which stores Bitmap
 val screenshotState = rememberScreenshotState()
 ```
 
-and take screenshot by clicking a button or calling `screenshotState.capture()`
+Take screenshot by calling `screenshotState.capture()`
 
-```
+```kotlin
 Button(
     onClick = { 
         screenshotState.capture()
@@ -84,9 +84,10 @@ Button(
     Text(text = "Take Screenshot")
 }
 ```
-And get `Bitmap` or `ImageBitmap` as
 
-```
+Get `Bitmap` or `ImageBitmap` as
+
+```kotlin
 screenshotState.imageBitmap?.let {
     Image(
         modifier = Modifier
@@ -98,15 +99,15 @@ screenshotState.imageBitmap?.let {
 }
 ```
 
-initially `Bitmap` is null because `onGloballyPositioned` might not return correct coordinates or
-sometimes it returns zero width or height, nullable makes sure that you get the latest one after
-calling `screenshotState.capture()`
+initially `Bitmap` is null because `onGloballyPositioned` might not return correct coordinates initially, experienced this with `Pager` first few calls return incorrect position then actual position is returned, or
+sometimes width or height is returned zero, nullable makes sure that you get the latest one after
+calling `screenshotState.capture()` from a Composable that is laid out.
 
 ### Periodic Shot
 
 Collect `screenshotState.liveScreenshotFlow` to get periodic screenshots of your composables with
 
-```
+```kotlin
 LaunchedEffect(Unit) {
         screenshotState.liveScreenshotFlow.onEach {
             imageBitmap = it.asImageBitmap()
@@ -118,7 +119,7 @@ LaunchedEffect(Unit) {
 
 Set a delay after each shot by setting `delayInMillis`
 
-```
+```kotlin
 /**
  * Create a State of screenshot of composable that is used with that is kept on each recomposition.
  * @param delayInMillis delay before each screenshot if [liveScreenshotFlow] is collected.
