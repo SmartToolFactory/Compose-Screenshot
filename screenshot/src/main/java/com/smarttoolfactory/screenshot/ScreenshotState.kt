@@ -27,7 +27,7 @@ class ScreenshotState internal constructor(
 ) {
     internal var callback: (() -> Bitmap?)? = null
 
-    private val bitmapState = mutableStateOf(callback?.invoke())
+    private val bitmapState = mutableStateOf<Bitmap?>(null)
 
     /**
      * Captures current state of Composables inside [ScreenshotBox]
