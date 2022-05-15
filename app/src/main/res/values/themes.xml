@@ -2,6 +2,6 @@
 <resources>
 
     <style name="Theme.ComposeScreenshot" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/blue_stf</item>
+        <item name="android:statusBarColor">@color/blue</item>
     </style>
 </resources>
