@@ -1,4 +1,4 @@
-package com.smarttoolfactory.composescreenshot
+package com.smarttoolfactory.composescreenshot.demo
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -15,6 +15,7 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smarttoolfactory.composescreenshot.R
 import com.smarttoolfactory.screenshot.ScreenshotBox
 import com.smarttoolfactory.screenshot.rememberScreenshotState
 import kotlinx.coroutines.delay

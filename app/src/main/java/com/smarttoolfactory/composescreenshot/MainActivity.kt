@@ -3,7 +3,6 @@ package com.smarttoolfactory.composescreenshot
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
@@ -16,7 +15,9 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
-import com.smarttoolfactory.composescreenshot.ui.theme.BlueSmartDark
+import com.smarttoolfactory.composescreenshot.demo.PeriodicScreenshotDemo
+import com.smarttoolfactory.composescreenshot.demo.ScreenshotDemo
+import com.smarttoolfactory.composescreenshot.demo.ScreenshotDemo2
 import com.smarttoolfactory.composescreenshot.ui.theme.ComposeScreenshotTheme
 import kotlinx.coroutines.launch
 
@@ -33,6 +34,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize()
                     ) {
                         HomeContent()
+//                        ScreenshotDemo()
                     }
                 }
             }
@@ -41,7 +43,6 @@ class MainActivity : ComponentActivity() {
 }
 
 @ExperimentalPagerApi
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun HomeContent() {
 
@@ -50,7 +51,7 @@ private fun HomeContent() {
     val coroutineScope = rememberCoroutineScope()
 
     ScrollableTabRow(
-        backgroundColor = BlueSmartDark,
+        backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
         contentColor = Color.White,
         edgePadding = 8.dp,
         // Our selected tab is our current page
@@ -79,6 +80,7 @@ private fun HomeContent() {
 
         when (page) {
             0 -> ScreenshotDemo()
+            1 -> ScreenshotDemo2()
             else -> PeriodicScreenshotDemo()
         }
     }
@@ -87,5 +89,6 @@ private fun HomeContent() {
 internal val tabList =
     listOf(
         "Single Screenshot",
+        "Single Screenshot2",
         "Periodic Screenshot",
     )

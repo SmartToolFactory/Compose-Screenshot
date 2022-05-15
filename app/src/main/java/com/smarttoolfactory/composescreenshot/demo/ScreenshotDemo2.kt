@@ -1,10 +1,10 @@
-package com.smarttoolfactory.composescreenshot
+package com.smarttoolfactory.composescreenshot.demo
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,12 +15,13 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smarttoolfactory.composescreenshot.R
 import com.smarttoolfactory.screenshot.ScreenshotBox
 import com.smarttoolfactory.screenshot.rememberScreenshotState
 import kotlinx.coroutines.delay
 
 @Composable
-fun ScreenshotDemo() {
+fun ScreenshotDemo2() {
 
     var counter by remember {
         mutableStateOf(0)
@@ -49,7 +50,7 @@ fun ScreenshotDemo() {
 }
 
 @Composable
-fun ScreenshotSample1(counter: Int) {
+private fun ScreenshotSample1(counter: Int) {
 
     val screenshotState = rememberScreenshotState()
 
@@ -83,9 +84,11 @@ fun ScreenshotSample1(counter: Int) {
 
     Spacer(modifier = Modifier.width(10.dp))
 
-    Button(onClick = {
-        screenshotState.capture()
-    }) {
+    ElevatedButton(
+        onClick = {
+            screenshotState.capture()
+        }
+    ) {
         Text(text = "Take Screenshot")
     }
 
@@ -111,7 +114,7 @@ fun ScreenshotSample1(counter: Int) {
 }
 
 @Composable
-fun ScreenshotSample2() {
+private fun ScreenshotSample2() {
 
     val screenshotState = rememberScreenshotState()
 
@@ -124,9 +127,11 @@ fun ScreenshotSample2() {
             .padding(4.dp)
     ) {
 
-        Button(onClick = {
-            screenshotState.capture()
-        }) {
+        ElevatedButton(
+            onClick = {
+                screenshotState.capture()
+            }
+        ) {
             Text(text = "Take Screenshot")
         }
 
