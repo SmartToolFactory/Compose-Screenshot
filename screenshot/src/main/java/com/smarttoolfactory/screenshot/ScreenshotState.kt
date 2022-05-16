@@ -1,13 +1,14 @@
 package com.smarttoolfactory.screenshot
 
 import android.graphics.Bitmap
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 
 /**
  * Create a State of screenshot of composable that is used with that is kept on each recomposition.
@@ -23,32 +24,44 @@ fun rememberScreenshotState(delayInMillis: Long = 20) = remember {
  * @param timeInMillis delay before each screenshot if [liveScreenshotFlow] is collected.
  */
 class ScreenshotState internal constructor(
-    private val timeInMillis: Long = 20
+    private val timeInMillis: Long = 20,
 ) {
-    internal var callback: (() -> Bitmap?)? = null
+    val imageState = mutableStateOf<ImageResult>(ImageResult.Initial)
 
-    private val bitmapState = mutableStateOf<Bitmap?>(null)
+    internal var callback: (() -> Unit)? = null
 
     /**
      * Captures current state of Composables inside [ScreenshotBox]
      */
     fun capture() {
-        bitmapState.value = callback?.invoke()
+        callback?.invoke()
     }
 
     val liveScreenshotFlow = flow {
         while (true) {
-            val bmp = callback?.invoke()
-            bmp?.let {
+            callback?.invoke()
+            delay(timeInMillis)
+            bitmapState.value?.let {
                 emit(it)
             }
-            delay(timeInMillis)
         }
     }
+        .map {
+            it.asImageBitmap()
+        }
+        .flowOn(Dispatchers.Default)
+
+    internal val bitmapState = mutableStateOf<Bitmap?>(null)
 
     val bitmap: Bitmap?
         get() = bitmapState.value
 
     val imageBitmap: ImageBitmap?
         get() = bitmap?.asImageBitmap()
+}
+
+sealed class ImageResult {
+    object Initial : ImageResult()
+    data class Error(val exception: Exception) : ImageResult()
+    data class Success(val data: Bitmap) : ImageResult()
 }

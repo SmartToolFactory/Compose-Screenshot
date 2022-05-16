@@ -2,17 +2,17 @@ package com.smarttoolfactory.composescreenshot.demo
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
+import com.smarttoolfactory.screenshot.ImageResult
 import com.smarttoolfactory.screenshot.ScreenshotBox
 import com.smarttoolfactory.screenshot.ScreenshotState
 import com.smarttoolfactory.screenshot.rememberScreenshotState
@@ -22,6 +22,16 @@ import com.smarttoolfactory.screenshot.rememberScreenshotState
 fun ScreenshotDemo() {
 
     val screenshotState = rememberScreenshotState()
+    var showDialog by remember { mutableStateOf(false) }
+    val imageResult: ImageResult = screenshotState.imageState.value
+
+    // Show dialog only when ImageResult is success or error
+    LaunchedEffect(key1 = imageResult){
+        if (imageResult is ImageResult.Success || imageResult is ImageResult.Error){
+            showDialog = true
+        }
+    }
+
     Scaffold(
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = {
@@ -33,6 +43,12 @@ fun ScreenshotDemo() {
         floatingActionButtonPosition = FabPosition.End,
         content = { paddingValues: PaddingValues ->
             ScreenshotSample(screenshotState, paddingValues)
+
+           if (showDialog) {
+               ImageAlertDialog(imageResult = imageResult) {
+                   showDialog = false
+               }
+           }
         }
     )
 }
@@ -40,27 +56,17 @@ fun ScreenshotDemo() {
 @Composable
 private fun ScreenshotSample(screenshotState: ScreenshotState, paddingValues: PaddingValues) {
     Column(
-        modifier = Modifier
-            .padding(paddingValues)
-    ) {
+        modifier = Modifier.background(Color(0xffECEFF1))) {
 
         Spacer(modifier = Modifier.height(30.dp))
-        Text(
-            text = "This is a sample to capture, image from the screen\n" +
-                    "using ScreenshotBox and other"
-        )
+
         ScreenshotBox(
-            modifier = Modifier
-                .border(2.dp, Color.Red)
-                .fillMaxWidth()
-                .fillMaxHeight(.5f),
+            modifier = Modifier.fillMaxSize(),
             screenshotState = screenshotState
         ) {
             LazyVerticalGrid(
                 contentPadding = PaddingValues(12.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xffECEFF1)),
+                modifier = Modifier.fillMaxSize(),
                 columns = GridCells.Fixed(3),
                 content = {
                     items(snacks) { snack: Snack ->
@@ -69,9 +75,32 @@ private fun ScreenshotSample(screenshotState: ScreenshotState, paddingValues: Pa
                 }
             )
         }
-
-        screenshotState.imageBitmap?.let { imageBitmap: ImageBitmap ->
-            Image(bitmap = imageBitmap, contentDescription = null)
-        }
     }
+}
+
+@Composable
+private fun ImageAlertDialog(imageResult: ImageResult, onDismiss: () -> Unit) {
+    androidx.compose.material.AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            FilledTonalButton(onClick = { onDismiss() }) {
+                Text(text = "Confirm")
+            }
+        },
+        dismissButton = {
+            FilledTonalButton(onClick = { onDismiss() }) {
+                Text(text = "Dismiss")
+            }
+        },
+        text = {
+            when (imageResult) {
+                is ImageResult.Success -> {
+                    Image(bitmap = imageResult.data.asImageBitmap(), contentDescription = null)
+                }
+                is ImageResult.Error -> {
+                    Text(text = "Error: ${imageResult.exception.message}")
+                }
+                else -> {}
+            }
+        })
 }

@@ -8,7 +8,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
@@ -44,9 +43,11 @@ fun PeriodicScreenshotDemo() {
         }
 
         LaunchedEffect(Unit) {
-            screenshotState.liveScreenshotFlow.onEach {
-                imageBitmap = it.asImageBitmap()
-            }.launchIn(this)
+            screenshotState.liveScreenshotFlow
+                .onEach { bitmap: ImageBitmap ->
+                    imageBitmap = bitmap
+                }
+                .launchIn(this)
         }
 
         LaunchedEffect(Unit) {

@@ -4,9 +4,9 @@
 
 Screenshot Composables and convert to Bitmap on user action or periodically.
 
-| Single Shot | Periodic |
-| ----------|-----------|
-| <img src="./art/screenshot.gif"/> | <img src="./art/periodic_screenshot.gif"/> |
+| Screenshot with State| Single Screenshot | Periodic Screenshot |
+| ----------|-----------| -----------|
+| <img src="./art/screenshot.gif"/> | <img src="./art/screenshot2.gif"/> | <img src="./art/periodic_screenshot.gif"/> |
 
 ## Gradle Setup
 
@@ -31,7 +31,6 @@ dependencies {
     implementation 'com.github.SmartToolFactory:Compose-Screenshot:Tag'
 }
 ```
-
 
 ## Implementation
 
@@ -77,10 +76,10 @@ Take screenshot by calling `screenshotState.capture()`
 
 ```kotlin
 Button(
-    onClick = { 
+    onClick = {
         screenshotState.capture()
     }
-) { 
+) {
     Text(text = "Take Screenshot")
 }
 ```
@@ -99,20 +98,51 @@ screenshotState.imageBitmap?.let {
 }
 ```
 
-initially `Bitmap` is null because `onGloballyPositioned` might not return correct coordinates initially, experienced this with `Pager` first few calls return incorrect position then actual position is returned, or
-sometimes width or height is returned zero, nullable makes sure that you get the latest one after
-calling `screenshotState.capture()` from a Composable that is laid out.
+initially `Bitmap` is null because `onGloballyPositioned` might not return correct coordinates
+initially, experienced this with `Pager` first few calls return incorrect position then actual
+position is returned, or sometimes width or height is returned zero, nullable makes sure that you
+get the latest one after calling `screenshotState.capture()` from a Composable that is laid out.
 
-### Periodic Shot
+### Success or Error State
+
+ImageResult Sealed class return data as Bitmap or Exception if you are interested in displaying
+error result if any has occurred
+
+```kotlin
+sealed class ImageResult {
+    object Initial : ImageResult()
+    data class Error(val exception: Exception) : ImageResult()
+    data class Success(val data: Bitmap) : ImageResult()
+}
+```
+
+ImageState of `ScreenshotState` has
+`val imageState = mutableStateOf<ImageResult>(ImageResult.Initial)` that can be observed as
+
+```kotlin
+when (imageResult) {
+    is ImageResult.Success -> {
+        Image(bitmap = imageResult.data.asImageBitmap(), contentDescription = null)
+    }
+    is ImageResult.Error -> {
+        Text(text = "Error: ${imageResult.exception.message}")
+    }
+    else -> {}
+}
+```
+
+### Periodic Screenshot
 
 Collect `screenshotState.liveScreenshotFlow` to get periodic screenshots of your composables with
 
 ```kotlin
 LaunchedEffect(Unit) {
-        screenshotState.liveScreenshotFlow.onEach {
-            imageBitmap = it.asImageBitmap()
-        }.launchIn(this)
-    }
+    screenshotState.liveScreenshotFlow
+        .onEach { bitmap: ImageBitmap ->
+            imageBitmap = bitmap
+        }
+        .launchIn(this)
+}
 ```
 
 ## ScreenshotState
@@ -126,36 +156,42 @@ Set a delay after each shot by setting `delayInMillis`
  */
 @Composable
 fun rememberScreenshotState(delayInMillis: Long = 20) = remember {
-    ScreenshotState(delayInMillis)
-}
+        ScreenshotState(delayInMillis)
+    }
 
 /**
  * State of screenshot of composable that is used with.
  * @param timeInMillis delay before each screenshot if [liveScreenshotFlow] is collected.
  */
 class ScreenshotState internal constructor(
-    private val timeInMillis: Long = 20
+    private val timeInMillis: Long = 20,
 ) {
-    internal var callback: (() -> Bitmap?)? = null
+    val imageState = mutableStateOf<ImageResult>(ImageResult.Initial)
 
-    private val bitmapState = mutableStateOf(callback?.invoke())
+    internal var callback: (() -> Unit)? = null
 
     /**
      * Captures current state of Composables inside [ScreenshotBox]
      */
     fun capture() {
-        bitmapState.value = callback?.invoke()
+        callback?.invoke()
     }
 
     val liveScreenshotFlow = flow {
         while (true) {
-            val bmp = callback?.invoke()
-            bmp?.let {
+            callback?.invoke()
+            delay(timeInMillis)
+            bitmapState.value?.let {
                 emit(it)
             }
-            delay(timeInMillis)
         }
     }
+        .map {
+            it.asImageBitmap()
+        }
+        .flowOn(Dispatchers.Default)
+
+    internal val bitmapState = mutableStateOf<Bitmap?>(null)
 
     val bitmap: Bitmap?
         get() = bitmapState.value
@@ -164,4 +200,65 @@ class ScreenshotState internal constructor(
         get() = bitmap?.asImageBitmap()
 }
 
+```
+
+### Standalone Functions
+If you wish to use function instead of `ScreenshotBox` you can use it as
+
+```
+val view: View = LocalView.current
+
+val imageResult:ImageResult = view.screenshot(bounds)
+```
+
+bounds is Compose rectangle that covers bounds of view that is needed to be screenshow
+which should be retrieved using `Modifier.onGloballyPositioned()`
+
+```
+Modifier.onGloballyPositioned {
+    composableBounds = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        it.boundsInWindow()
+    } else {
+        it.boundsInRoot()
+    }
+}
+```
+
+```kotlin
+fun View.screenshot(
+    bounds: Rect
+): ImageResult {
+
+    try {
+
+        val bitmap = Bitmap.createBitmap(
+            bounds.width.toInt(),
+            bounds.height.toInt(),
+            Bitmap.Config.ARGB_8888,
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            // Above Android O not using PixelCopy throws exception
+            // https://stackoverflow.com/questions/58314397/java-lang-illegalstateexception-software-rendering-doesnt-support-hardware-bit
+            PixelCopy.request(
+                (this.context as Activity).window,
+                bounds.toAndroidRect(),
+                bitmap,
+                {},
+                Handler(Looper.getMainLooper())
+            )
+        } else {
+            val canvas = Canvas(bitmap)
+                .apply {
+                    translate(-bounds.left, -bounds.top)
+                }
+            this.draw(canvas)
+            canvas.setBitmap(null)
+        }
+        return ImageResult.Success(bitmap)
+    } catch (e: Exception) {
+        return ImageResult.Error(e)
+    }
+}
 ```
