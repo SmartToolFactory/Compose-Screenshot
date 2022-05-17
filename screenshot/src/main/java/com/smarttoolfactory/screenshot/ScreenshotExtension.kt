@@ -64,9 +64,6 @@ fun View.screenshot(
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-            val handlerThread = HandlerThread("Screenshot Thread")
-
-
             // Above Android O not using PixelCopy throws exception
             // https://stackoverflow.com/questions/58314397/java-lang-illegalstateexception-software-rendering-doesnt-support-hardware-bit
             PixelCopy.request(
@@ -74,7 +71,6 @@ fun View.screenshot(
                 bounds.toAndroidRect(),
                 bitmap,
                 {
-                    println("✊ PixelCopy THREAD: ${Thread.currentThread().name}")
                     when (it) {
                         PixelCopy.SUCCESS -> {
                             bitmapCallback.invoke(ImageResult.Success(bitmap))
@@ -138,9 +134,7 @@ fun View.screenshot(
                         }
                     }
 
-                    handlerThread.quitSafely()
                 },
-//                Handler(handlerThread.looper)
                 Handler(Looper.getMainLooper())
             )
         } else {

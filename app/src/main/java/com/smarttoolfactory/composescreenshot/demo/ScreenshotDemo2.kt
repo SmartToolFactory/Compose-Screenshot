@@ -167,9 +167,6 @@ private fun ScreenshotSample2() {
         modifier = Modifier.padding(8.dp)
     )
 
-
-    println("DEMO image: ${screenshotState.imageBitmap}")
-
     screenshotState.imageBitmap?.let {
         Image(
             modifier = Modifier
