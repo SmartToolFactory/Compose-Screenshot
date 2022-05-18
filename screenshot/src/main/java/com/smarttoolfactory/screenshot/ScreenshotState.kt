@@ -1,7 +1,9 @@
 package com.smarttoolfactory.screenshot
 
 import android.graphics.Bitmap
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +14,8 @@ import kotlinx.coroutines.flow.map
 
 /**
  * Create a State of screenshot of composable that is used with that is kept on each recomposition.
- * @param delayInMillis delay before each screenshot if [liveScreenshotFlow] is collected.
+ * @param delayInMillis delay before each screenshot
+ * if [ScreenshotState.liveScreenshotFlow] is collected.
  */
 @Composable
 fun rememberScreenshotState(delayInMillis: Long = 20) = remember {
@@ -27,6 +30,8 @@ class ScreenshotState internal constructor(
     private val timeInMillis: Long = 20,
 ) {
     val imageState = mutableStateOf<ImageResult>(ImageResult.Initial)
+
+    val bitmapState = mutableStateOf<Bitmap?>(null)
 
     internal var callback: (() -> Unit)? = null
 
@@ -51,7 +56,6 @@ class ScreenshotState internal constructor(
         }
         .flowOn(Dispatchers.Default)
 
-    internal val bitmapState = mutableStateOf<Bitmap?>(null)
 
     val bitmap: Bitmap?
         get() = bitmapState.value
@@ -60,8 +64,3 @@ class ScreenshotState internal constructor(
         get() = bitmap?.asImageBitmap()
 }
 
-sealed class ImageResult {
-    object Initial : ImageResult()
-    data class Error(val exception: Exception) : ImageResult()
-    data class Success(val data: Bitmap) : ImageResult()
-}

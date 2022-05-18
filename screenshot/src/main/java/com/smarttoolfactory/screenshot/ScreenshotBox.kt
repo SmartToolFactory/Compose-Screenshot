@@ -35,25 +35,25 @@ fun ScreenshotBox(
             composableBounds?.let { bounds ->
                 if (bounds.width == 0f || bounds.height == 0f) return@let
 
-                view.screenshot(bounds) { imageState ->
-                    screenshotState.imageState.value = imageState
+                view.screenshot(bounds) { imageResult: ImageResult ->
+                    screenshotState.imageState.value = imageResult
 
-                    if (imageState is ImageResult.Success) {
-                        screenshotState.bitmapState.value = imageState.data
+                    if (imageResult is ImageResult.Success) {
+                        screenshotState.bitmapState.value = imageResult.data
                     }
                 }
             }
         }
 
         onDispose {
-            screenshotState.callback = null
-          val bmp =  screenshotState.bitmapState.value
+            val bmp = screenshotState.bitmapState.value
             bmp?.apply {
                 if (!isRecycled) {
                     recycle()
-                    screenshotState.bitmapState.value = null
                 }
             }
+            screenshotState.bitmapState.value = null
+            screenshotState.callback = null
         }
     }
 
